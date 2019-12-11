@@ -57,22 +57,26 @@ class Snake extends CanvasObject {
             let b = this.bodyLocation[i];
             cathanvas.drawDot(b, this.style);
         }
-        this.moveSnake();
+        // this.moveSnake();
     };
 
     moveSnake = () => {
-        let prev = this.moveBodySegment(this.bodyLocation[0], this.orientation);
+        let segment = this.moveBodySegment(this.bodyLocation[0], this.orientation);
 
-        if (this.isAtBounds(prev, this.canvas)) {
+        if (this.isAtBounds(segment, this.canvas)) {
             this.game.endGame();
             return;
         }
 
         for (let i = 0; i < this.bodyLocation.length; i++) {
             const next = this.bodyLocation[i];
-            this.bodyLocation[i] = prev;
-            prev = next;
+            this.bodyLocation[i] = segment;
+            segment = next;
         }
+    };
+
+    doPhysics = () => {
+        this.moveSnake();
     };
 
     moveBodySegment = (coords, orientation) => {
@@ -111,22 +115,46 @@ class Snake extends CanvasObject {
 class Game {
     constructor(cathanvas) {
         this.canvas = cathanvas;
-        this.startGame();
+        this.physObjects = [];
+        this.TICK = 1000;
+        // this.startGame();
     }
 
     startGame = () => {
         this.snake = new Snake(canvas, this);
-        canvas.animateObject(this.snake);
-        canvas.startAnimating();
+        canvas.addRenderObject(this.snake);
+        this.addPhysicsObject(this.snake);
 
-        setTimeout(() => {
-            canvas.stopAnimating();
-        }, 30000);
+        this.startPhysics();
+        canvas.startRendering();
     };
 
     endGame = () => {
         window.alert("Game Over!");
-        canvas.stopAnimating();
+        canvas.stopRendering();
+    };
+
+    addPhysicsObject = (obj) => {
+        this.physObjects.push(obj);
+    };
+
+    startPhysics = () => {
+        setInterval(this.physicsUpdate, this.TICK)
+    };
+
+    physicsUpdate = () => {
+        this.physObjects.forEach(obj => {
+            if (obj.doPhysics) {
+                obj.doPhysics()
+            }
+        });
     };
 }
 
+class Collider {
+    constructor(bounds, options = {}) {
+        this.bounds = bounds;
+    }
+
+
+}

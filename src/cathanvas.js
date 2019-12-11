@@ -13,7 +13,7 @@ class Cathanvas {
         this.container.appendChild(this.canvas);
         this.anims = [];
         this.animating = false;
-        this.animate = this.animate.bind(this);
+        this.renderCanvas = this.renderCanvas.bind(this);
     }
 
     drawDot(coords, style) {
@@ -35,7 +35,7 @@ class Cathanvas {
         this.context.stroke();
     }
 
-    animate = () => {
+    renderCanvas = () => {
         // clear canvas
         this.context.clearRect(0, 0, this.width, this.height);
 
@@ -48,22 +48,21 @@ class Cathanvas {
 
         // restore canvas state
         if (this.animating) {
-            console.log('requesting animation frame');
-            requestAnimationFrame(this.animate);
+            requestAnimationFrame(this.renderCanvas);
         }
     };
 
-    animateObject(obj) {
+    addRenderObject(obj) {
         // Add to animation queue
         this.anims.push(obj)
     }
 
-    startAnimating() {
+    startRendering() {
         this.animating = true;
-        this.animate();
+        requestAnimationFrame(this.renderCanvas);
     }
 
-    stopAnimating() {
+    stopRendering() {
         this.animating = false;
     }
 

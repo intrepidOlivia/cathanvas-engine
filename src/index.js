@@ -3,3 +3,4 @@ canvas.context.fillStyle = "#FFFFFF";
 canvas.context.fillRect(0, 0, 800, 600);
 
 const game = new Game(canvas);
+game.startGame();

@@ -57,7 +57,6 @@ class Snake extends CanvasObject {
             let b = this.bodyLocation[i];
             cathanvas.drawDot(b, this.style);
         }
-        // this.moveSnake();
     };
 
     moveSnake = () => {
@@ -116,8 +115,7 @@ class Game {
     constructor(cathanvas) {
         this.canvas = cathanvas;
         this.physObjects = [];
-        this.TICK = 1000;
-        // this.startGame();
+        this.TICK = 500;
     }
 
     startGame = () => {

@@ -16,9 +16,24 @@ class Cathanvas {
         this.renderCanvas = this.renderCanvas.bind(this);
     }
 
+    /**
+     * @param coords [x, y]
+     * @param style
+     */
     drawDot(coords, style) {
         this.context.fillStyle = style || '#FFFFFF';
-        this.context.fillRect(coords.x, coords.y, 1, 1);
+        this.context.fillRect(coords[0], coords[1], 1, 1);
+    }
+
+    /**
+     * @param from [x, y]
+     * @param width
+     * @param height
+     * @param style
+     */
+    drawRect(from, width, height, style = '000000') {
+        this.context.fillStyle = style;
+        this.context.fillRect(from[0], from[1], width, height);
     }
 
     drawLineFrom(source = [this.center.x, this.center.y], target, style) {

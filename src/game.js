@@ -3,6 +3,8 @@ const SOUTH = 'south';
 const EAST = 'east';
 const WEST = 'west';
 
+const BODY_RADIUS = 5;
+
 class Snake extends CanvasObject {
     constructor(cathanvas, game, options = {}) {
         super();
@@ -16,11 +18,22 @@ class Snake extends CanvasObject {
     }
 
     addListeners = () => {
-        window.addEventListener('keydown', this.changeDirection);
+        window.addEventListener('keydown', this.onKeyDown);
     };
 
     removeListeners = () => {
-        window.removeEventListener('keydown', this.changeDirection);
+        window.removeEventListener('keydown', this.onKeyDown);
+    };
+
+    onKeyDown = (e) => {
+        // e.preventDefault();
+
+        if (e.key === ' ') {
+            this.game.togglePause();
+            return;
+        }
+
+        this.changeDirection(e);
     };
 
     changeDirection = (e) => {
@@ -45,17 +58,17 @@ class Snake extends CanvasObject {
         const centery = canvas.height / 2;
         return [
             {x: centerx, y: centery},
-            {x: centerx - 1, y: centery},
-            {x: centerx - 2, y: centery},
-            {x: centerx - 3, y: centery},
-            {x: centerx - 4, y: centery},
+            {x: centerx - (1 * BODY_RADIUS), y: centery},
+            {x: centerx - (2 * BODY_RADIUS), y: centery},
+            {x: centerx - (3 * BODY_RADIUS), y: centery},
+            {x: centerx - (4 * BODY_RADIUS), y: centery},
         ];
     };
 
     render = (cathanvas) => {
         for (let i = 0; i < this.bodyLocation.length; i++) {
             let b = this.bodyLocation[i];
-            cathanvas.drawDot(b, this.style);
+            cathanvas.drawRect([b.x - BODY_RADIUS, b.y - BODY_RADIUS], BODY_RADIUS * 2, BODY_RADIUS * 2, this.style)
         }
     };
 
@@ -85,16 +98,16 @@ class Snake extends CanvasObject {
 
         switch (orientation) {
             case NORTH:
-                return { x: coords.x, y: coords.y - 1 };
+                return { x: coords.x, y: coords.y - BODY_RADIUS };
                 break;
             case EAST:
-                return { x: coords.x + 1, y: coords.y };
+                return { x: coords.x + BODY_RADIUS, y: coords.y };
                 break;
             case SOUTH:
-                return { x: coords.x, y: coords.y + 1};
+                return { x: coords.x, y: coords.y + BODY_RADIUS};
                 break;
             case WEST:
-                return { x: coords.x - 1, y: coords.y };
+                return { x: coords.x - BODY_RADIUS, y: coords.y };
         }
     };
 
@@ -116,6 +129,7 @@ class Game {
         this.canvas = cathanvas;
         this.physObjects = [];
         this.TICK = 500;
+        this.physicsLoop = null;
     }
 
     startGame = () => {
@@ -137,7 +151,12 @@ class Game {
     };
 
     startPhysics = () => {
-        setInterval(this.physicsUpdate, this.TICK)
+        this.physicsLoop = setInterval(this.physicsUpdate, this.TICK)
+    };
+
+    stopPhysics = () => {
+        clearInterval(this.physicsLoop);
+        this.physicsLoop = null;
     };
 
     physicsUpdate = () => {
@@ -147,6 +166,15 @@ class Game {
             }
         });
     };
+
+    togglePause() {
+        if (this.physicsLoop) {
+            this.stopPhysics();
+            return;
+        }
+
+        this.startPhysics();
+    }
 }
 
 class Collider {

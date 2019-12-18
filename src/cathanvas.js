@@ -102,6 +102,12 @@ class Rect {
      */
     constructor(bounds) {
         this.bounds = bounds;
+        this.left = this.bounds[0];
+        this.width = this.bounds[2] - this.bounds[0];
+        this.top = this.bounds[1];
+        this.height = this.bounds[3] - this.bounds[1];
+        this.right = this.bounds[2];
+        this.bottom = this.bounds[3];
     }
 
     /**
@@ -109,6 +115,11 @@ class Rect {
      * @param area [x1, y1, x2, y2]
      */
     intersects(area) {
+        // Error handling
+        if (!area.length || area.length < 4) {
+            throw new Error(`Error when calculating intersection with object: ${b.toString()}`);
+        }
+
         let crosses = false;
 
         let Ax1 = this.bounds[0];

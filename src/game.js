@@ -5,6 +5,26 @@ const WEST = 'west';
 
 const BODY_RADIUS = 5;
 
+class Pill extends CanvasObject {
+    constructor(cathanvas, game, options = {}) {
+        super();
+        this.canvas = cathanvas;
+        this.game = game;
+        this.radius = 5;
+        this.chooseRandomLocation(cathanvas);
+    }
+
+    render = (cathanvas) => {
+        cathanvas.drawRect([this.bounds.left, this.bounds.top], this.radius * 2, this.radius *2, '#000000');
+    };
+
+    chooseRandomLocation = (cathanvas) => {
+        const randX = Math.floor(Math.random() * cathanvas.width);
+        const randY = Math.floor(Math.random() * cathanvas.height);
+        this.bounds = new Rect([randX - this.radius, randY - this.radius, randX + this.radius, randY + this.radius]);
+    };
+}
+
 class Snake extends CanvasObject {
     constructor(cathanvas, game, options = {}) {
         super();
@@ -14,6 +34,7 @@ class Snake extends CanvasObject {
         this.orientation = 'east';
         this.canvas = cathanvas;
         this.game = game;
+        this.speed = options.speed || 1;
         this.addListeners();
     }
 
@@ -56,6 +77,7 @@ class Snake extends CanvasObject {
     initBody = (canvas) => {
         const centerx = canvas.width / 2;
         const centery = canvas.height / 2;
+        this.bounds = new Rect([centerx - BODY_RADIUS, centery - BODY_RADIUS, centerx + BODY_RADIUS, centery + BODY_RADIUS]);
         return [
             {x: centerx, y: centery},
             {x: centerx - (1 * BODY_RADIUS), y: centery},
@@ -74,6 +96,7 @@ class Snake extends CanvasObject {
 
     moveSnake = () => {
         let segment = this.moveBodySegment(this.bodyLocation[0], this.orientation);
+        this.bounds = new Rect([segment.x - BODY_RADIUS, segment.y - BODY_RADIUS, segment.x + BODY_RADIUS, segment.y + BODY_RADIUS]);
 
         if (this.isAtBounds(segment, this.canvas)) {
             this.game.endGame();
@@ -87,6 +110,11 @@ class Snake extends CanvasObject {
         }
     };
 
+    growBody = () => {
+        const lastSegment = this.bodyLocation[this.bodyLocation.length - 1];
+        this.bodyLocation.push({x: lastSegment.x, y: lastSegment.y});
+    };
+
     doPhysics = () => {
         this.moveSnake();
     };
@@ -98,16 +126,16 @@ class Snake extends CanvasObject {
 
         switch (orientation) {
             case NORTH:
-                return { x: coords.x, y: coords.y - BODY_RADIUS };
+                return { x: coords.x, y: coords.y - (BODY_RADIUS * 2) };
                 break;
             case EAST:
-                return { x: coords.x + BODY_RADIUS, y: coords.y };
+                return { x: coords.x + (BODY_RADIUS * 2), y: coords.y };
                 break;
             case SOUTH:
-                return { x: coords.x, y: coords.y + BODY_RADIUS};
+                return { x: coords.x, y: coords.y + (BODY_RADIUS * 2)};
                 break;
             case WEST:
-                return { x: coords.x - BODY_RADIUS, y: coords.y };
+                return { x: coords.x - (BODY_RADIUS * 2), y: coords.y };
         }
     };
 
@@ -127,16 +155,28 @@ class Snake extends CanvasObject {
 class Game {
     constructor(cathanvas) {
         this.canvas = cathanvas;
+        // this.colliderTree = new Quadtree();
+
         this.physObjects = [];
-        this.TICK = 500;
+        this.TICK = 300;
         this.physicsLoop = null;
+
+        // Add snake
+        this.snake = new Snake(cathanvas, this);
+        this.createObject(this.snake);
+
+        // Add pill
+        this.pill = new Pill(cathanvas, this);
+        this.createObject(this.pill);
     }
 
-    startGame = () => {
-        this.snake = new Snake(canvas, this);
-        canvas.addRenderObject(this.snake);
-        this.addPhysicsObject(this.snake);
+    createObject = (newObj) => {
+        this.canvas.addRenderObject(newObj);
+        this.addPhysicsObject(newObj);
+        this.canvas.addRenderObject(newObj);
+    };
 
+    startGame = () => {
         this.startPhysics();
         canvas.startRendering();
     };
@@ -152,20 +192,35 @@ class Game {
     };
 
     startPhysics = () => {
-        this.physicsLoop = setInterval(this.physicsUpdate, this.TICK)
+        setTimeout(this.physicsUpdate, this.TICK);
+        this.physicsLoop = true;
+        // this.physicsLoop = setInterval(this.physicsUpdate, this.TICK)
     };
 
     stopPhysics = () => {
-        clearInterval(this.physicsLoop);
+        // clearInterval(this.physicsLoop);
         this.physicsLoop = null;
     };
 
     physicsUpdate = () => {
+        if (!this.physicsLoop) {
+            return;
+        }
+
         this.physObjects.forEach(obj => {
             if (obj.doPhysics) {
                 obj.doPhysics()
             }
         });
+
+        // ON PILL COLLISION
+        if (this.snake.bounds.intersects(this.pill.bounds)) {
+            this.pill.chooseRandomLocation(this.canvas);
+            this.snake.growBody();
+            this.TICK -= 50;
+        }
+
+        setTimeout(this.physicsUpdate, this.TICK);
     };
 
     togglePause() {
@@ -185,176 +240,5 @@ class GameObject {
             this.collider = new Collider(bounds);
         }
         this.instanceId = new Date().getUTCMilliseconds();
-    }
-}
-
-class Collider {
-    constructor(gameObject, bounds, options = {}) {
-        this.bounds = bounds;
-        this.gameObject = gameObject;
-    }
-}
-
-class Quadtree {
-    MAX_NODE_OBJECTS = 5;
-    THIS_TREE = -1;
-    CHILD_NE = 0;
-    CHILD_NW = 1;
-    CHILD_SW = 2;
-    CHILD_SE = 3;
-
-    constructor(parent=null, level=null, bounds=new Rect([0, 0, 800, 600])) {
-        this.parent = parent;
-        this.level = level;
-        this.bounds = bounds;
-
-        this.objects = [];
-        this.children = [];
-    }
-
-    insert(collider) {
-        let indexNode = null;
-
-
-        if (this.children.length > 0) {
-            // insert into one of the children
-            indexNode = this.getIndexNode(collider.bounds);
-            if (indexNode != this.THIS_TREE) {
-                this.children[indexNode].insert(collider);
-                return;
-            }
-        }
-
-        // insert into this node
-        this.objects.push(collider);
-
-        // Check if node needs to split
-        if (this.objects.length > this.MAX_NODE_OBJECTS) {
-            this.split();
-
-            for (let i = 0; i < this.objects.length; i++) {
-                const c = this.objects[i];
-                const newIndex = this.getIndexNode(c.bounds);
-
-                if (newIndex !== this.THIS_TREE) {
-                    this.children[newIndex].insert(c);
-                    this.objects[i] = null;
-                    // this.objects = this.objects.splice(i, 1);
-                }
-            }
-
-            this.objects = this.objects.filter(o => o !== null);
-        }
-    }
-
-    split() {
-        const b = this.bounds;
-
-        const childWidth = b.width / 2;
-        const childHeight = b.height / 2;
-
-        this.children[this.CHILD_NE] = new Quadtree(this, this.level + 1, new Rect([b.left + childWidth, b.top, b.right, b.top + childHeight]));
-        this.children[this.CHILD_NW] = new Quadtree(this, this.level + 1, new Rect([b.left, b.top, b.left + childWidth, b.top + childHeight]));
-        this.children[this.CHILD_SW] = new Quadtree(this, this.level + 1, new Rect([b.left, b.top + childHeight, b.left + childWidth, b.bottom]));
-        this.children[this.CHILD_SE] = new Quadtree(this, this.level + 1, new Rect([b.left + childWidth, b.top + childHeight, b.right, b.bottom]));
-    }
-
-    remove(collider) {
-        const indexNode = this.getIndexNode(collider.bounds);
-
-        if (indexNode === this.THIS_TREE || this.children[indexNode] === null) {
-            for (let i = 0; i < this.objects.length; i++) {
-                const c = this.objects[i];
-                if (c.gameObject.instanceId === collider.gameObject.instanceId) {
-                    this.objects[i] = null;
-                }
-            }
-
-            this.objects = this.objects.filter(o => o !== null);
-        } else {
-            this.children[indexNode].remove(collider);
-        }
-    }
-
-    /**
-     * @param area {Rect}
-     * @returns {Array}
-     */
-    search(area) {
-        let possibleOverlaps = [];
-        this._search(area, possibleOverlaps);
-        const outList = [];
-
-        possibleOverlaps.forEach(c => {
-            if (area.intersects(c.bounds)) {
-                outList.push(c);
-            }
-        });
-
-        return outList;
-    }
-
-    /**
-     * Internal version of search that iterates on itself to find nodes to search
-     * @param area {Rect}
-     * @param overlaps  Will be modified in function (Side effects? Maybe we can make this functional)
-     * @private
-     */
-    _search(area, overlaps) {
-        this.objects.forEach(o => overlaps.push(o));
-        //
-        // if (this.objects.length > 0) {
-        //     overlaps.push(this.objects);
-        // }
-
-        if (this.children.length > 0 && this.children[0] !== null) {
-            const indexNode = this.getIndexNode(area);
-
-            if (indexNode === this.THIS_TREE) {
-                for (let i = 0; i < this.children.length; i++) {
-                    if (area.intersects(this.children[i].bounds)) {
-                    // if (this.children[i].bounds.intersects(area)) {
-                        this.children[i]._search(area, overlaps);
-                    }
-                }
-            } else {
-                this.children[indexNode]._search(area, overlaps);
-            }
-        }
-    }
-
-    /**
-     * @param bounds {Rect}
-     */
-    getIndexNode(objBounds) {
-        let index = -1;
-
-        const vertDivide = (this.bounds.left + this.bounds.width) / 2;
-        const horizDivide = (this.bounds.top + this.bounds.height) / 2;
-
-        const isNorth = objBounds.top < horizDivide && (objBounds.top + objBounds.height) < horizDivide;
-        const isSouth = objBounds.top > horizDivide;
-        const isWest = objBounds.left < vertDivide && (objBounds.left + objBounds.width) < vertDivide;
-        const isEast = objBounds.left > vertDivide;
-
-        if (isEast) {
-            if (isNorth) {
-                index = this.CHILD_NE;
-            } else if (isSouth) {
-                index = this.CHILD_SE;
-            }
-        } else if (isWest) {
-            if (isNorth) {
-                index = this.CHILD_NW;
-            } else if (isSouth) {
-                index = this.CHILD_SW;
-            }
-        }
-
-        return index;
-    }
-
-    clear() {
-
     }
 }

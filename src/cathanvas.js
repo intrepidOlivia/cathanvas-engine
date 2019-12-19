@@ -115,8 +115,10 @@ class Rect {
      * @param area [x1, y1, x2, y2]
      */
     intersects(area) {
+        const b = area.bounds ? area.bounds : area;  // Can't keep straight between rect and coord array
+
         // Error handling
-        if (!area.length || area.length < 4) {
+        if (!b.length || b.length < 4) {
             throw new Error(`Error when calculating intersection with object: ${b.toString()}`);
         }
 
@@ -127,10 +129,10 @@ class Rect {
         let Ax2 = this.bounds[2];
         let Ay2 = this.bounds[3];
 
-        let Bx1 = area[0];
-        let By1 = area[1];
-        let Bx2 = area[2];
-        let By2 = area[3];
+        let Bx1 = b[0];
+        let By1 = b[1];
+        let Bx2 = b[2];
+        let By2 = b[3];
 
         const bLeftOfA = Bx2 < Ax1;
         const bTopofA = By2 < Ay1;

@@ -236,7 +236,7 @@ class Quadtree {
                 const c = this.objects[i];
                 const newIndex = this.getIndexNode(c.bounds);
 
-                if (newIndex != this.THIS_TREE) {
+                if (newIndex !== this.THIS_TREE) {
                     this.children[newIndex].insert(c);
                     this.objects[i] = null;
                     // this.objects = this.objects.splice(i, 1);
@@ -286,7 +286,7 @@ class Quadtree {
         const outList = [];
 
         possibleOverlaps.forEach(c => {
-            if (area.intersects(c)) {
+            if (area.intersects(c.bounds)) {
                 outList.push(c);
             }
         });
@@ -297,11 +297,15 @@ class Quadtree {
     /**
      * Internal version of search that iterates on itself to find nodes to search
      * @param area {Rect}
-     * @param overlaps
+     * @param overlaps  Will be modified in function (Side effects? Maybe we can make this functional)
      * @private
      */
     _search(area, overlaps) {
-        overlaps = overlaps.concat(this.objects);
+        this.objects.forEach(o => overlaps.push(o));
+        //
+        // if (this.objects.length > 0) {
+        //     overlaps.push(this.objects);
+        // }
 
         if (this.children.length > 0 && this.children[0] !== null) {
             const indexNode = this.getIndexNode(area);
@@ -314,7 +318,7 @@ class Quadtree {
                     }
                 }
             } else {
-                this.children[indexNode].search(area, overlaps);
+                this.children[indexNode]._search(area, overlaps);
             }
         }
     }

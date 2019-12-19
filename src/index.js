@@ -1,6 +1,4 @@
-const canvas = new Cathanvas('root');
-canvas.context.fillStyle = "#FFFFFF";
-canvas.context.fillRect(0, 0, 800, 600);
+const canvas = new Cathanvas('root', {width: 500, height: 500});
 
 const game = new Game(canvas);
 game.startGame();

@@ -217,7 +217,7 @@ class Game {
         if (this.snake.bounds.intersects(this.pill.bounds)) {
             this.pill.chooseRandomLocation(this.canvas);
             this.snake.growBody();
-            this.TICK -= 50;
+            this.TICK *= 0.85;
         }
 
         setTimeout(this.physicsUpdate, this.TICK);

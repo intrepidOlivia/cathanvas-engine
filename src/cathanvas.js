@@ -31,7 +31,7 @@ class Cathanvas {
      * @param height
      * @param style
      */
-    drawRect(from, width, height, style = '000000') {
+    drawRect(from, width, height, style = '#000000') {
         this.context.fillStyle = style;
         this.context.fillRect(from[0], from[1], width, height);
     }

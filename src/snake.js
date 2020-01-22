@@ -60,8 +60,6 @@ class Snake extends CanvasObject {
     };
 
     onKeyDown = (e) => {
-        // e.preventDefault();
-
         if (e.key === ' ') {
             this.game.togglePause();
             return;
@@ -73,16 +71,24 @@ class Snake extends CanvasObject {
     changeDirection = (e) => {
         switch (e.key) {
             case 'ArrowUp':
-                this.orientation = NORTH;
+                if (this.orientation !== SOUTH) {
+                    this.orientation = NORTH;
+                }
                 break;
             case 'ArrowRight':
-                this.orientation = EAST;
+                if (this.orientation !== WEST) {
+                    this.orientation = EAST;
+                }
                 break;
             case 'ArrowDown':
-                this.orientation = SOUTH;
+                if (this.orientation !== NORTH) {
+                    this.orientation = SOUTH;
+                }
                 break;
             case 'ArrowLeft':
-                this.orientation = WEST;
+                if (this.orientation !== EAST) {
+                    this.orientation = WEST;
+                }
                 break;
         }
     };
@@ -159,12 +165,12 @@ class Snake extends CanvasObject {
         }
     };
 
-    isAtBounds = (coords, cathanvas) => {
-        if (coords.x < 0 || coords.x >= cathanvas.width) {
+    isAtBounds = (head, cathanvas) => {
+        if (head.x < 0 || head.x >= cathanvas.width) {
             return true;
         }
 
-        if (coords.y < 0 || coords.y >= cathanvas.height) {
+        if (head.y < 0 || head.y >= cathanvas.height) {
             return true;
         }
 

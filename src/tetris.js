@@ -1,16 +1,24 @@
 const LINE_HEIGHT = 10;
-const RATE_OF_DESCENT = 500;    // milliseconds
+let RATE_OF_DESCENT = 600;    // milliseconds
 const TICK = 10;    // milliseconds
+const RIGHT = 'right';
+const LEFT = 'left';
+const DOWN = 'down';
+const BOTTOM = 'bottom';
 
 class Tetris {
     constructor(game) {
         this.game = game;
         this.active = null;
-        this.activeLocation = null;
         this.field = {
             width: Math.floor(game.canvas.width / LINE_HEIGHT),    // block units
             height: Math.floor(game.canvas.height / LINE_HEIGHT),  // block units
         };
+        this.tickCounter = {
+            deltaTime: 0,
+            prev: Date.now(),
+        };
+        this.nextMove = null;
         this.addListeners();
     }
 
@@ -28,31 +36,127 @@ class Tetris {
         this.active.rotateClockwise();
     };
 
+    togglePause = () => {
+        this.resetDelta();
+        this.game.togglePause();
+    };
+
     onKeyDown = (e) => {
         if (e.key === ' ') {
-            this.active.rotateClockwise();
+            this.togglePause();
+        }
+
+        if (e.key === 'ArrowLeft') {
+            this.nextMove = LEFT;
+        }
+
+        if (e.key === 'ArrowRight') {
+            this.nextMove = RIGHT;
+        }
+
+        if (e.key === 'ArrowDown') {
+            this.nextMove = DOWN;
         }
     };
 
-    doPhysics() {
+    resetDelta = () => {
+        this.tickCounter.deltaTime = 0;
+        this.tickCounter.prev = Date.now();
+    };
 
+    doPhysics() {
+        // Check for end of game
+        if (this.isAtBounds(BOTTOM)) {
+            this.game.endGame();
+            return;
+        }
+
+        // Control rate of descent
+        const now = Date.now();
+        this.tickCounter.deltaTime += now - this.tickCounter.prev;
+        if (this.tickCounter.deltaTime > RATE_OF_DESCENT) {
+            this.resetDelta();
+            this.descend();
+        }
+        this.tickCounter.prev = now;
+
+        // Do rest of player input
+        this.moveNext();
     }
+
+    moveNext = () => {
+        switch (this.nextMove) {
+            case RIGHT:
+                this.moveRight();
+                break;
+            case LEFT:
+                this.moveLeft();
+                break;
+            case DOWN:
+                this.descend();
+                break;
+            default:
+                break;
+        }
+        this.nextMove = null;
+    };
 
     render(canvas) {
         this.active.render(canvas);
     }
 
-    /**
-     *
-     * @param coord [x, y]
-     */
-    descend(coord) {
-        return [coord[0], coord[1] + 1];
+    descend() {
+        const pos = this.active.position;
+        this.active.position = [pos[0], pos[1] + 1];
+    }
+
+    moveLeft() {
+        if (!this.isAtBounds(LEFT)) {
+            const pos = this.active.position;
+            this.active.position = [pos[0] - 1, pos[1]];
+        }
+    }
+
+    moveRight() {
+        if (!this.isAtBounds(RIGHT)) {
+            const pos = this.active.position;
+            this.active.position = [pos[0] + 1, pos[1]]
+        }
     }
 
     spawnTetromino() {
         this.active = new Tetromino();
         this.active.position = [Math.floor(this.field.width / 2), Math.floor(this.field.height / 2)];
+    }
+
+    isAtBounds(whichBound) {
+        const shapePosition = this.active.getShapeBounds();
+        const leftBound = new Rect([0 - this.field.width, 0 - this.field.height, 0, this.field.height]);   // left
+        const rightBound = new Rect([this.field.width, 0, this.field.width * 2, this.field.height]);   // right
+        const bottomBound = new Rect([0, this.field.height, this.field.width, this.field.height * 2]);
+
+        switch (whichBound) {
+            case LEFT:
+                return shapePosition.intersects(leftBound);
+            case RIGHT:
+                return shapePosition.intersects(rightBound);
+            case BOTTOM:
+                return shapePosition.intersects(bottomBound);
+            default:
+                break;
+        }
+
+        if (!whichBound) {
+            const allBounds = [leftBound, rightBound, bottomBound];
+            for (let i = 0; i < allBounds.length; i++) {
+                const bound = allBounds[i];
+                if (bound.intersects(shapePosition)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }
 
@@ -71,6 +175,13 @@ class Tetromino {
             this.rotation = -90;
         }
     }
+
+    getShapeBounds = () => {
+        const pos = this.position;
+        const topLeft = [pos[0], pos[1]]
+        const bottomRight = [pos[0] + this[this.shape][0].length, pos[1] + this[this.shape].length];
+        return new Rect([topLeft[0], topLeft[1], bottomRight[0], bottomRight[1]]);
+    };
 
     render(canvas) {
         let cursor = [this.position[0] * LINE_HEIGHT, this.position[1] * LINE_HEIGHT];  // cursor is canvas position, not field position

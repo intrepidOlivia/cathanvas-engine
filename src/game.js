@@ -5,7 +5,7 @@ class Game {
 
         this.gameObjects = [];
         this.physObjects = [];
-        this.TICK = 300;
+        this.TICK = 50;
         this.physicsLoop = null;
     }
 

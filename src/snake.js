@@ -47,7 +47,7 @@ class Snake extends CanvasObject {
         this.orientation = 'east';
         this.canvas = cathanvas;
         this.game = game;
-        this.speed = options.speed || 1;
+        this.game.TICK = options.speed || 500;
         this.addListeners();
     }
 

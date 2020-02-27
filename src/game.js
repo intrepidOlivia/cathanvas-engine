@@ -2,12 +2,33 @@ class Game {
     constructor(cathanvas) {
         this.canvas = cathanvas;
         // this.colliderTree = new Quadtree();
+        this.colliderTree = {};
 
         this.gameObjects = [];
         this.physObjects = [];
         this.TICK = 50;
         this.physicsLoop = null;
+
+        this.addListeners();
     }
+
+    addListeners = () => {
+        window.addEventListener('click', this.onClick);
+    };
+
+    onClick = (e) => {
+        console.log('click event:', e);
+        const clickCoords = [e.offsetX, e.offsetY];
+        this.detectCollisions(clickCoords);
+    };
+
+    detectCollisions = (clickCoords) => {
+        this.physObjects.forEach(obj => {
+            if (obj.collider) {
+
+            }
+        });
+    };
 
     createObject = (newObj) => {
         this.gameObjects.push(newObj);

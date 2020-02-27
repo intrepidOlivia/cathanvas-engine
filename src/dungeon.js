@@ -10,7 +10,7 @@ const DIRECTIONS = {
     ArrowDown: DOWN,
 };
 
-const SPEED = 5;
+const SPEED = 10;
 
 class Dungeon extends Game {
     constructor() {

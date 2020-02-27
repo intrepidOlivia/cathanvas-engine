@@ -205,6 +205,8 @@ function rectUnitTests() {
     console.log("Unit tests complete!");
 }
 
+const ANIM_TICK = 200;
+
 class Sprite {
     /**
      * @param spritesheet {HTMLImageElement}
@@ -224,6 +226,7 @@ class Sprite {
         // this.sprites = this.slice(spritesheet);
         this.index = 0;
         this.position = null;
+        this.tick = Date.now();
     }
 
     slice(spritesheet) {
@@ -239,10 +242,17 @@ class Sprite {
     }
 
     getCurrentSprite() {
-        // consult internal state to see which sprite we should be using
-        const index = Math.floor(Math.random() * this.sprites.length);
-        // const index = 0; // TODO: Make sprite dynamic
         return this.sprites[this.index];
+    }
+
+    incrementAnimation(index, orientation) {
+        const min = this.config[orientation][0];
+        const max = this.config[orientation][1];
+        const i = index + 1;
+        if (i > max || i < min) {
+            return min;
+        }
+        return i;
     }
 
     getRenderPosition() {
@@ -263,11 +273,19 @@ class Sprite {
         } else {
             // select sprite based on previous orientation
             this.orientation = this.getOrientation(this.position, position);
-            this.index = this.config[this.orientation];
+            this.animateSprite();
         }
 
         this.position = position;
     }
+
+    animateSprite = () => {
+        const now = Date.now();
+        if (now - this.tick > ANIM_TICK) {
+            this.index = this.incrementAnimation(this.index, this.orientation);
+            this.tick = now;
+        }
+    };
 
     getOrientation(prevPos, nextPos) {
         if (prevPos[0] < nextPos[0]) {

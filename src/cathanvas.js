@@ -216,11 +216,13 @@ class Sprite {
         this.width = sliceCoords[0];
         this.height = sliceCoords[1];
         this.config = config;
+        this.sprites = [];
         spritesheet.onload = () => {
             this.sprites = this.slice(spritesheet)
         };
 
         // this.sprites = this.slice(spritesheet);
+        this.index = 0;
         this.position = null;
     }
 
@@ -240,7 +242,7 @@ class Sprite {
         // consult internal state to see which sprite we should be using
         const index = Math.floor(Math.random() * this.sprites.length);
         // const index = 0; // TODO: Make sprite dynamic
-        return this.sprites[index];
+        return this.sprites[this.index];
     }
 
     getRenderPosition() {
@@ -250,15 +252,35 @@ class Sprite {
         ];
     }
 
+    selectMovement(nextMove) {
+        switch (nextMove) {
+            case RIGHT:
+                this.index = 1;
+                break;
+            case LEFT:
+                this.index = 2;
+                break;
+            case DOWN:
+                this.index = 3;
+                break;
+            case UP:
+                this.index = 4;
+            default:
+                break;
+        }
+    }
+
     render(cathanvas) {
         const sprite = this.getCurrentSprite();
-        cathanvas.drawImage(this.spritesheet, this.getRenderPosition(), {
-            sx: sprite[0],
-            sy: sprite[1],
-            sWidth: this.width,
-            sHeight: this.height,
-            dWidth: this.width,
-            dHeight: this.height,
-        })
+        if (sprite) {
+            cathanvas.drawImage(this.spritesheet, this.getRenderPosition(), {
+                sx: sprite[0],
+                sy: sprite[1],
+                sWidth: this.width,
+                sHeight: this.height,
+                dWidth: this.width,
+                dHeight: this.height,
+            })
+        }
     }
 }

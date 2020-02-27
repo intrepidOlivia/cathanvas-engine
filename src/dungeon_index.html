@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <title>Dungeon Crawl</title>
     <script src="cathanvas.js"></script>
-    <script src="tetris.js"></script>
     <script src="game.js"></script>
+    <script src="dungeon.js"></script>
     <link href="index.css" rel="stylesheet" />
 </head>
 <body>
@@ -19,7 +19,11 @@
     img.src = 'sprite_test.png';
     const sprite = new Sprite(img, [115, 115], {});
     sprite.position = [canvas.width / 2, canvas.height / 2];
+    const dungeon = new Dungeon();
+    dungeon.player.sprite = sprite;
     canvas.addRenderObject(sprite);
     canvas.startRendering();
+    dungeon.addPhysicsObject(dungeon);
+    dungeon.startGame();
 </script>
 </html>

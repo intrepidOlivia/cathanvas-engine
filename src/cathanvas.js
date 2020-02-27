@@ -36,6 +36,46 @@ class Cathanvas {
         this.context.fillRect(from[0], from[1], width, height);
     }
 
+    /**
+     *
+     * @param image
+     * @param coords [ x, y ]
+     * @param options {Object} { dWidth, dHeight, sx, sy, sWidth, sHeight}
+     */
+    drawImage(image, coords, options = {}) {
+        if (!coords) {
+            return;
+        }
+
+        const { dWidth, dHeight, sx, sy, sWidth, sHeight} = options;
+
+        if (this.areValuesValid([sx, sy, sWidth, sHeight])) {
+            this.context.drawImage(image, sx, sy, sWidth, sHeight, coords[0], coords[1], dWidth, dHeight)
+            return;
+        }
+
+        if (this.areValuesValid([dWidth, dHeight])) {
+            this.context.drawImage(image, coords[0], coords[1], dWidth, dHeight);
+            return;
+        }
+
+        this.context.drawImage(image, coords[0], coords[1]);
+    }
+
+    /**
+     * Returns true if args are not null or undefined
+     * @param args [val1, val2, val3, etc ..]
+     * @returns {boolean}
+     */
+    areValuesValid(args) {
+        for (let i = 0; i < args.length; i++) {
+            if (args[i] === null || args[i] === undefined) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     drawLineFrom(source = [this.center.x, this.center.y], target, style) {
         this.context.strokeStyle = style || '#FFFFFF';
         this.context.moveTo(source[0], source[1]);
@@ -163,4 +203,62 @@ function rectUnitTests() {
     console.assert(a.intersects(b3) === false, "B3");
     console.assert(a.intersects(b4) === false, "B4");
     console.log("Unit tests complete!");
+}
+
+class Sprite {
+    /**
+     * @param spritesheet {HTMLImageElement}
+     * @param sliceCoords [ width, height ]
+     * @param config {Object} {}
+     */
+    constructor(spritesheet, sliceCoords, config) {
+        this.spritesheet = spritesheet;
+        this.width = sliceCoords[0];
+        this.height = sliceCoords[1];
+        this.config = config;
+        spritesheet.onload = () => {
+            this.sprites = this.slice(spritesheet)
+        };
+
+        // this.sprites = this.slice(spritesheet);
+        this.position = null;
+    }
+
+    slice(spritesheet) {
+        const sprites = [];
+        const xframes = Math.ceil(spritesheet.naturalWidth / this.width);
+        const yframes = Math.ceil(spritesheet.naturalHeight / this.height);
+        for (let i = 0; i < yframes; i++) { // rows
+            for (let j = 0; j < xframes; j++) { // columns
+                sprites.push([ j * this.width, i * this.height ]);   // [x, y]
+            }
+        }
+        return sprites;
+    }
+
+    getCurrentSprite() {
+        // consult internal state to see which sprite we should be using
+        const index = Math.floor(Math.random() * this.sprites.length);
+        // const index = 0; // TODO: Make sprite dynamic
+        return this.sprites[index];
+    }
+
+    getRenderPosition() {
+        return [
+            this.position[0] - (this.width / 2),
+            this.position[1] - (this.height / 2),
+        ];
+    }
+
+    render(cathanvas) {
+        const sprite = this.getCurrentSprite();
+        cathanvas.drawImage(this.spritesheet, this.getRenderPosition(), {
+            sx: sprite[0],
+            sy: sprite[1],
+            sWidth: this.width,
+            sHeight: this.height,
+            dWidth: this.width,
+            dHeight: this.height,
+        })
+    }
 }

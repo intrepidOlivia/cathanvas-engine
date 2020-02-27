@@ -1,4 +1,4 @@
-const LINE_HEIGHT = 10;
+const LINE_HEIGHT = 30;
 let RATE_OF_DESCENT = 600;    // milliseconds
 const TICK = 10;    // milliseconds
 const RIGHT = 'right';
@@ -10,10 +10,7 @@ class Tetris {
     constructor(game) {
         this.game = game;
         this.active = null;
-        this.field = {
-            width: Math.floor(game.canvas.width / LINE_HEIGHT),    // block units
-            height: Math.floor(game.canvas.height / LINE_HEIGHT),  // block units
-        };
+        this.field = this.createField(game);
         this.tickCounter = {
             deltaTime: 0,
             prev: Date.now(),
@@ -21,6 +18,31 @@ class Tetris {
         this.nextMove = null;
         this.addListeners();
     }
+
+    createField(game) {
+        const width = Math.floor(game.canvas.width / LINE_HEIGHT);
+        const height = Math.floor(game.canvas.height / LINE_HEIGHT);
+        const lines = [];
+        for (let i = 0; i < height; i++) {  // rows
+            lines[i] = [];
+            for (let j = 0; j < width; j++) {   // columns
+                lines[i][j] = 0;
+            }
+        }
+
+        return {
+            width,
+            height,
+            lines,
+        };
+    }
+
+    newFieldState = () => {
+        this.freezeBlock();
+        this.resetDelta();
+        this.spawnTetromino();
+    };
+
 
     addListeners = () => {
         window.addEventListener('click', this.onClick);
@@ -33,7 +55,7 @@ class Tetris {
     };
 
     onClick = () => {
-        this.active.rotateClockwise();
+        this.togglePause();
     };
 
     togglePause = () => {
@@ -43,7 +65,7 @@ class Tetris {
 
     onKeyDown = (e) => {
         if (e.key === ' ') {
-            this.togglePause();
+            this.active.rotateClockwise();
         }
 
         if (e.key === 'ArrowLeft') {
@@ -65,9 +87,10 @@ class Tetris {
     };
 
     doPhysics() {
-        // Check for end of game
-        if (this.isAtBounds(BOTTOM)) {
-            this.game.endGame();
+        // Do player input
+        this.moveNext();
+
+        if (this.checkPlacement()) {
             return;
         }
 
@@ -77,12 +100,38 @@ class Tetris {
         if (this.tickCounter.deltaTime > RATE_OF_DESCENT) {
             this.resetDelta();
             this.descend();
+            if (this.checkPlacement()) {
+                return;
+            }
         }
         this.tickCounter.prev = now;
-
-        // Do rest of player input
-        this.moveNext();
     }
+
+    checkPlacement = () => {
+        if (this.intersectsBlock(this.active)) {
+            this.newFieldState();
+            this.checkAndProcessLineCompletion()
+            return true;
+        }
+        return false;
+    };
+
+    checkAndProcessLineCompletion = () => {
+        const completeLines = [];
+        const cSum = this.field.width;
+        for (let i = 0; i < this.field.lines.length; i++) {
+            const row = this.field.lines[i];
+            let lineSum = row.reduce((val, sum) => val + sum);
+            if (lineSum === cSum) {
+                completeLines.push(i);
+            }
+        }
+
+        // Temporary
+        completeLines.forEach(rowIndex => {
+            this.field.lines[rowIndex] = this.field.lines[rowIndex].map(v => 0);
+        });
+    };
 
     moveNext = () => {
         switch (this.nextMove) {
@@ -102,7 +151,26 @@ class Tetris {
     };
 
     render(canvas) {
+        this.renderField(canvas);
+
         this.active.render(canvas);
+    }
+
+    renderField(canvas) {
+        const cursor = [0, 0];
+        for (let i = 0; i < this.field.lines.length; i++) { // rows
+            const row = this.field.lines[i];
+            for (let j = 0; j < row.length; j++) {       // cols
+                const cell = row[j];
+                if (cell > 0) {
+                    canvas.drawRect([j * LINE_HEIGHT, i * LINE_HEIGHT], LINE_HEIGHT, LINE_HEIGHT, '#550055');
+                }
+            }
+        }
+
+        this.field.lines.forEach(row => {
+            row.forEach(col => {});
+        });
     }
 
     descend() {
@@ -113,7 +181,11 @@ class Tetris {
     moveLeft() {
         if (!this.isAtBounds(LEFT)) {
             const pos = this.active.position;
-            this.active.position = [pos[0] - 1, pos[1]];
+            const newPos = [pos[0] - 1, pos[1]];
+            const v = this.getVirtualTetromino(this.active.shape, this.active[this.active.shape], newPos);
+            if (!this.intersectsBlock(v)) {
+                this.active.position = newPos;
+            }
         }
     }
 
@@ -126,28 +198,25 @@ class Tetris {
 
     spawnTetromino() {
         this.active = new Tetromino();
-        this.active.position = [Math.floor(this.field.width / 2), Math.floor(this.field.height / 2)];
+        this.active.position = [Math.floor(this.field.width / 2), 0];
     }
 
     isAtBounds(whichBound) {
         const shapePosition = this.active.getShapeBounds();
         const leftBound = new Rect([0 - this.field.width, 0 - this.field.height, 0, this.field.height]);   // left
         const rightBound = new Rect([this.field.width, 0, this.field.width * 2, this.field.height]);   // right
-        const bottomBound = new Rect([0, this.field.height, this.field.width, this.field.height * 2]);
 
         switch (whichBound) {
             case LEFT:
                 return shapePosition.intersects(leftBound);
             case RIGHT:
                 return shapePosition.intersects(rightBound);
-            case BOTTOM:
-                return shapePosition.intersects(bottomBound);
             default:
                 break;
         }
 
         if (!whichBound) {
-            const allBounds = [leftBound, rightBound, bottomBound];
+            const allBounds = [leftBound, rightBound];
             for (let i = 0; i < allBounds.length; i++) {
                 const bound = allBounds[i];
                 if (bound.intersects(shapePosition)) {
@@ -157,6 +226,66 @@ class Tetris {
         }
 
         return false;
+    }
+
+    intersectsBlock(tetromino=this.active) {
+        const shapePos = tetromino.getShapeBounds();
+
+        if (shapePos.bottom >= this.field.height) {
+            return true;
+        }
+
+        const shape = tetromino[tetromino.shape];
+        const shapeBottomRow = shape[shape.length - 1];
+
+        const dynamicRow = [];  // virtual row with only the shape's bottom piece in it
+        for (let i = 0; i < this.field.width; i++) {
+            dynamicRow[i] = 0;
+            if (i >= shapePos.left && i < shapePos.right) {
+                dynamicRow[i] = shapeBottomRow[i - shapePos.left];
+            }
+        }
+
+        const nextRow = this.field.lines[shapePos.bottom];
+
+        for (let i = 0; i < this.field.width; i++) {
+            let sum = dynamicRow[i] + nextRow[i];
+            if (sum > 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+
+    freezeBlock = () => {
+        const shapePos = this.active.getShapeBounds();
+        const shape = this.active[this.active.shape];
+        let n = 0;
+        for (let i = shapePos.top; i < this.field.lines.length; i++) {  // rows
+            const newRow = [];
+            let c = 0;
+            for (let j = 0; j < this.field.width; j++) {
+                if (j >= shapePos.left && j < shapePos.right) {
+                    if (shape[n][c] === 1) {
+                        this.field.lines[i][j] = 1;
+                    }
+                    c++;
+                }
+            }
+            n++;
+            if (!shape[n]) {
+                break;
+            }
+        }
+    };
+
+    getVirtualTetromino(type, shape, position) {
+        const t = new Tetromino();
+        t.position = position;
+        t.shape = type;
+        t[type] = shape;
     }
 }
 

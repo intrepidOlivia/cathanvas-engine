@@ -252,22 +252,45 @@ class Sprite {
         ];
     }
 
-    selectMovement(nextMove) {
-        switch (nextMove) {
-            case RIGHT:
-                this.index = 1;
-                break;
-            case LEFT:
-                this.index = 2;
-                break;
-            case DOWN:
-                this.index = 3;
-                break;
-            case UP:
-                this.index = 4;
-            default:
-                break;
+    /**
+     * @param position
+     * @param orientation [OPTIONAL]
+     */
+    moveSpriteTo(position, orientation) {
+        if (orientation) {
+            // Just select sprite based on what was passed in
+            this.orientation = orientation;
+        } else {
+            // select sprite based on previous orientation
+            this.orientation = this.getOrientation(this.position, position);
+            this.index = this.config[this.orientation];
         }
+
+        this.position = position;
+    }
+
+    getOrientation(prevPos, nextPos) {
+        if (prevPos[0] < nextPos[0]) {
+            // going right
+            return RIGHT;
+        }
+
+        if (prevPos[1] < nextPos[1]) {
+            // going down
+            return DOWN;
+        }
+
+        if (prevPos[0] > nextPos[0]) {
+            // going left
+            return LEFT;
+        }
+
+        if (prevPos[1] > nextPos[1]) {
+            // going up
+            return UP;
+        }
+
+        return this.orientation;
     }
 
     render(cathanvas) {

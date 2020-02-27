@@ -44,9 +44,6 @@ class Dungeon extends Game {
 
     moveNext = () => {
         // TODO: Make movement direction contiguous
-
-        this.player.sprite.selectMovement(this.nextMove);
-
         if (this.nextMove) {
             this.movement[this.nextMove](this.player.sprite);
         }
@@ -59,22 +56,22 @@ class Dungeon extends Game {
     moveRight = (sprite) => {
         // TODO: Check for collision
         const pos = sprite.position;
-        sprite.position = [ pos[0] + SPEED, pos[1]];
+        this.player.sprite.moveSpriteTo([ pos[0] + SPEED, pos[1]]);
     };
 
     moveLeft = (sprite) => {
         const pos = sprite.position;
-        sprite.position = [ pos[0] - SPEED, pos[1]];
+        this.player.sprite.moveSpriteTo([ pos[0] - SPEED, pos[1]]);
     };
 
     moveDown = (sprite) => {
         const pos = sprite.position;
-        sprite.position = [ pos[0], pos[1] + SPEED];
+        this.player.sprite.moveSpriteTo([ pos[0], pos[1] + SPEED]);
     };
 
     moveUp = (sprite) => {
         const pos = sprite.position;
-        sprite.position = [ pos[0], pos[1] - SPEED];
+        this.player.sprite.moveSpriteTo([ pos[0], pos[1] - SPEED]);
     };
 
     isAtBounds = (rect) => {

@@ -23,7 +23,6 @@ class Dungeon extends Game {
             [UP]: this.moveUp,
             [DOWN]: this.moveDown,
         };
-        this.inputs = {};
     }
 
     addListeners = () => {
@@ -32,19 +31,22 @@ class Dungeon extends Game {
     };
 
     onKeyDown = (e) => {
-        this.inputs[DIRECTIONS[e.key]] = true;
+        this.nextMove = DIRECTIONS[e.key];
     };
 
     onKeyUp = (e) => {
         const key = DIRECTIONS[e.key];
-        delete this.inputs[key];
+
+        if (this.nextMove === key) {
+            this.nextMove = null;
+        }
     };
 
     moveNext = () => {
         // TODO: Make movement direction contiguous
-        Object.keys(this.inputs).forEach(input => {
-            this.movement[input](this.player.sprite);
-        });
+        if (this.nextMove) {
+            this.movement[this.nextMove](this.player.sprite);
+        }
     };
 
     doPhysics() {

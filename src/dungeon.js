@@ -30,6 +30,11 @@ class Dungeon extends Game {
         window.addEventListener('keyup', this.onKeyUp);
     };
 
+    startGame() {
+        super.startGame();
+        this.setColliderTree(this.player.sprite)
+    };
+
     onKeyDown = (e) => {
         this.nextMove = DIRECTIONS[e.key];
     };
@@ -42,37 +47,59 @@ class Dungeon extends Game {
         }
     };
 
-    moveNext = () => {
-        // TODO: Make movement direction contiguous
+    moveNext = (collisions) => {
         if (this.nextMove) {
             this.movement[this.nextMove](this.player.sprite);
         }
     };
 
     doPhysics() {
-        this.moveNext();
+        const newPos = this.getNewPosition();
+        const {sprite} = this.player;
+        const newRect = Sprite.getSpriteRect(sprite, newPos);
+        if (!this.doesCollide(newRect)) {
+            sprite.moveSpriteTo(newPos);
+
+            // Reset collider tree
+        }
     }
 
-    moveRight = (sprite) => {
-        // TODO: Check for collision
-        const pos = sprite.position;
-        this.player.sprite.moveSpriteTo([ pos[0] + SPEED, pos[1]]);
+    setColliderTree = (sprite) => {
+        const newTree = new Quadtree();
+        this.scene.colliders.forEach(collider => {
+            newTree.insert(collider);
+        });
+        newTree.insert(sprite.rect);
+        this.colliderTree = newTree;
     };
 
-    moveLeft = (sprite) => {
-        const pos = sprite.position;
-        this.player.sprite.moveSpriteTo([ pos[0] - SPEED, pos[1]]);
+    getNewPosition() {
+        if (this.nextMove) {
+            return this.movement[this.nextMove](this.player.sprite.position);
+        }
+        return this.player.sprite.position;
+    }
+
+    doesCollide = (newRect) => {
+        const collisions = this.colliderTree.search(newRect);
+        return collisions.length > 0;
     };
 
-    moveDown = (sprite) => {
-        const pos = sprite.position;
-        this.player.sprite.moveSpriteTo([ pos[0], pos[1] + SPEED]);
+    moveRight = (pos) => {
+        return [ pos[0] + SPEED, pos[1]]
     };
 
-    moveUp = (sprite) => {
-        const pos = sprite.position;
-        this.player.sprite.moveSpriteTo([ pos[0], pos[1] - SPEED]);
+    moveLeft = pos => {
+        return [ pos[0] - SPEED, pos[1]];
     };
+
+    moveDown = (pos) => {
+        return [ pos[0], pos[1] + SPEED];
+    };
+
+    moveUp = (pos) => {
+        return [ pos[0], pos[1] - SPEED];
+    }
 
     isAtBounds = (rect) => {
 

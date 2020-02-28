@@ -229,6 +229,23 @@ class Sprite {
         this.tick = Date.now();
     }
 
+    /**
+     * Retrieve a sprite's Rect object at a given position
+     * (if position is not provided, will return current Rect)
+     * @param sprite
+     * @param position
+     * @returns {Rect}
+     */
+    static getSpriteRect(sprite, position) {
+        if (position == null) {
+            return sprite.rect;
+        }
+
+        const wextent = sprite.width / 2;
+        const hextent = sprite.height / 2;
+        return new Rect([position[0] - wextent, position[1] - hextent, position[0] + wextent, position[1] + hextent]);
+    }
+
     slice(spritesheet) {
         const sprites = [];
         const xframes = Math.ceil(spritesheet.naturalWidth / this.width);
@@ -272,11 +289,14 @@ class Sprite {
             this.orientation = orientation;
         } else {
             // select sprite based on previous orientation
-            this.orientation = this.getOrientation(this.position, position);
-            this.animateSprite();
+            if (position !== this.position) {
+                this.orientation = this.getOrientation(this.position, position);
+                this.animateSprite();
+            }
         }
 
         this.position = position;
+        this.rect = Sprite.getSpriteRect(this, position);
     }
 
     animateSprite = () => {
@@ -308,7 +328,7 @@ class Sprite {
             return UP;
         }
 
-        return this.orientation;
+        return this.orientation || DOWN;
     }
 
     render(cathanvas) {

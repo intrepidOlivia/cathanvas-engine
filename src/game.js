@@ -1,13 +1,27 @@
 class Game {
     constructor(cathanvas) {
         this.canvas = cathanvas;
-        // this.colliderTree = new Quadtree();
+        this.colliderTree = new Quadtree();
 
         this.gameObjects = [];
         this.physObjects = [];
+        this.scenes = [];
+        this.scene = null;
         this.TICK = 50;
         this.physicsLoop = null;
     }
+
+    onClick = (e) => {
+        const clickCoords = [e.offsetX, e.offsetY];
+    };
+
+    detectCollisions = (clickCoords) => {
+        this.physObjects.forEach(obj => {
+            if (obj.collider) {
+
+            }
+        });
+    };
 
     createObject = (newObj) => {
         this.gameObjects.push(newObj);
@@ -17,6 +31,11 @@ class Game {
     };
 
     startGame = () => {
+        // Set up scene
+        if (!this.scene) {
+            this.scene = new Scene();
+        }
+
         this.startPhysics();
         canvas.startRendering();
     };
@@ -30,6 +49,10 @@ class Game {
     addPhysicsObject = (obj) => {
         if (obj.doPhysics) {
             this.physObjects.push(obj);
+        }
+
+        if (obj.collider) {
+
         }
     };
 
@@ -47,17 +70,22 @@ class Game {
             return;
         }
 
+        // TODO: Check collision?
+        const collisions = {};
+
         this.physObjects.forEach(obj => {
             if (obj.doPhysics) {
-                obj.doPhysics()
+                obj.doPhysics(collisions)
             }
         });
 
         this.gameObjects.forEach(obj => {
             if (obj.onPhysicsUpdate) {
-                obj.onPhysicsUpdate();
+                obj.onPhysicsUpdate(collisions);
             }
         });
+
+        // TODO: Update all colliders
 
         setTimeout(this.physicsUpdate, this.TICK);
     };
@@ -70,6 +98,15 @@ class Game {
 
         this.startPhysics();
     }
+
+    addScene(scene) {
+        this.scenes.push(scene);
+        return this.scenes.length - 1;
+    }
+
+    loadScene(index) {
+        this.scene = this.scenes[index];
+    }
 }
 
 class GameObject {
@@ -79,5 +116,11 @@ class GameObject {
             this.collider = new Collider(bounds);
         }
         this.instanceId = new Date().getUTCMilliseconds();
+    }
+}
+
+class Scene {
+    constructor(colliders = []) {
+        this.colliders = colliders;
     }
 }

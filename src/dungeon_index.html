@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Dungeon Crawl</title>
     <script src="cathanvas.js"></script>
+    <script src="collider_system.js"></script>
     <script src="game.js"></script>
     <script src="dungeon.js"></script>
     <link href="index.css" rel="stylesheet" />
@@ -14,7 +15,7 @@
 </div>
 </body>
 <script>
-    const canvas = new Cathanvas('root', {width: 500, height: window.innerHeight});
+    const canvas = new Cathanvas('root', {width: window.innerWidth, height: window.innerHeight});
     const img = new Image();
     img.src = 'sprite_test.png';
     const sprite = new Sprite(img, [115, 115], {

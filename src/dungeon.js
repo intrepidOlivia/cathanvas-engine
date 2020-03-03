@@ -99,9 +99,52 @@ class Dungeon extends Game {
 
     moveUp = (pos) => {
         return [ pos[0], pos[1] - SPEED];
-    }
+    };
 
     isAtBounds = (rect) => {
 
+    }
+}
+
+/**
+ * Essentially a set of colliders and visuals that establish the setting of the game
+ */
+class Level {
+    constructor() {
+
+    }
+}
+
+/**
+ * Allows the setting of various colliders to be imported into a Level component
+ */
+class DungeonEditor {
+    constructor() {
+        this.setUpCanvas();
+        this.setUpSettings();
+    }
+
+    setUpCanvas() {
+        const root = document.getElementById('root');
+        const canvas = new Cathanvas('root', {width: root.clientWidth, height: root.clientHeight});
+        this.canvas = canvas;
+        canvas.startRendering();
+    }
+
+    setUpSettings() {
+        const input = document.getElementById('loadbg');
+        input.onchange = (e) => this.loadImage(e, input);
+    }
+
+    loadImage(e, input) {
+        if (input.files) {
+            Object.keys(input.files).forEach(index => {
+                console.log(input.files[index]);
+                const image = new Image();
+                // const image = document.createElement('img');
+                image.src = URL.createObjectURL(input.files[index]);
+                this.canvas.setBackground(null, image);
+            });
+        }
     }
 }

@@ -16,6 +16,11 @@ class Cathanvas {
         this.renderCanvas = this.renderCanvas.bind(this);
     }
 
+    setBackground(color, img) {
+        this.bgColor = color;
+        this.bgImg = img;
+    }
+
     /**
      * @param coords [x, y]
      * @param style
@@ -95,8 +100,7 @@ class Cathanvas {
         this.context.clearRect(0, 0, this.width, this.height);
 
         // re-populate bg
-        this.context.fillStyle = '#99b7e8';
-        this.context.fillRect(0, 0, this.width, this.height);
+        this.renderBg();
 
         // draw animated shapes
         this.anims.forEach(obj => this.draw(obj));
@@ -106,6 +110,15 @@ class Cathanvas {
             requestAnimationFrame(this.renderCanvas);
         }
     };
+
+    renderBg() {
+        this.context.fillStyle = this.bgColor || '#99b7e8';
+        this.context.fillRect(0, 0, this.width, this.height);
+
+        if (this.bgImg) {
+            this.drawImage(this.bgImg, [0, 0])
+        }
+    }
 
     addRenderObject(obj) {
         // Add to animation queue

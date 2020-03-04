@@ -17,12 +17,12 @@
 <script>
     const canvas = new Cathanvas('root', {width: window.innerWidth, height: window.innerHeight});
     const img = new Image();
-    img.src = 'sprite_test.png';
-    const sprite = new Sprite(img, [115, 115], {
-        [RIGHT]: [0, 7],
-        [LEFT]: [0, 7],
-        [DOWN]: [4, 7],
-        [UP]: [4, 7],
+    img.src = 'eleanor_sprite.png';
+    const sprite = new Sprite(img, [25, 50], {
+        [RIGHT]: [2, 3],
+        [LEFT]: [0, 1],
+        [DOWN]: [0, 1],
+        [UP]: [2, 3],
     });
     sprite.position = [canvas.width / 2, canvas.height / 2];
     const dungeon = new Dungeon();

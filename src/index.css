@@ -16,6 +16,10 @@ body {
     align-items: center;
 }
 
+#root > canvas {
+    image-rendering: pixelated;
+}
+
 .settings {
     display:flex;
     flex-direction: column;

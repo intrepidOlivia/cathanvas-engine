@@ -125,6 +125,13 @@ class Cathanvas {
         this.anims.push(obj)
     }
 
+    removeRenderObject(obj) {
+        const s = this.anims.indexOf(a => a === obj);
+        if (s) {
+            this.anims.splice(s, 1);
+        }
+    }
+
     startRendering() {
         this.animating = true;
         requestAnimationFrame(this.renderCanvas);
@@ -139,7 +146,7 @@ class Cathanvas {
             return;
         }
 
-        obj.render(canvas);
+        obj.render(this);
     }
 }
 

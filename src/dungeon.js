@@ -134,6 +134,48 @@ class DungeonEditor {
     setUpSettings() {
         const input = document.getElementById('loadbg');
         input.onchange = (e) => this.loadImage(e, input);
+        document.getElementById('enable-collider').onclick = this.addColliderListeners;
+        document.getElementById('disable-collider').onclick = this.removeColliderListeners;
+    }
+
+    addColliderListeners = () => {
+        window.addEventListener('mousedown', this.startTrackingCollider);
+        window.addEventListener('mouseup', this.stopTrackingCollider);
+    };
+
+    removeColliderListeners = () => {
+        window.removeEventListener('mousedown', this.startTrackingCollider);
+        window.removeEventListener('mouseup', this.stopTrackingCollider)
+    };
+
+    startTrackingCollider = (e) => {
+        console.log('start tracking:', e);
+        this.isDrawing = {
+            start: this.getCanvasCoords(e),
+        };
+    };
+
+    stopTrackingCollider = (e) => {
+        console.log('stop tracking:', e);
+        this.isDrawing.stop = this.getCanvasCoords(e);
+        console.log('New collider:', this.isDrawing);
+        const { stop, start } = this.isDrawing;
+
+        this.canvas.addRenderObject(new Collider(null, [...start, ...stop]))
+        // this.canvas.drawRect(this.isDrawing.start, stop[0] - start[0], stop[1] - start[1], '#46DB24');
+    };
+
+    /**
+     * Retrieves the coordinates of a location relative to the existing canvas element
+     * @param {MouseEvent} e
+     * @return {Array} [x, y]
+     */
+    getCanvasCoords(e) {
+        if (e.toElement && e.toElement === this.canvas.canvas) {
+            return [e.offsetX, e.offsetY]
+        }
+        const cbounds = this.canvas.canvas.getBoundingClientRect();
+        return [e.x - cbounds.x, e.y - cbounds.y];
     }
 
     loadImage(e, input) {
@@ -148,3 +190,4 @@ class DungeonEditor {
         }
     }
 }
+

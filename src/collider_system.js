@@ -1,7 +1,18 @@
 class Collider {
+    /**
+     * @param gameObject
+     * @param bounds [x1, y1, x2, y2]
+     * @param options
+     */
     constructor(gameObject, bounds, options = {}) {
         this.bounds = bounds;
+        this.rect = new Rect(bounds);
         this.gameObject = gameObject;
+    }
+
+    render(canvas) {
+        const b = this.bounds;
+        canvas.drawRect([b[0], b[1]], this.rect.width, this.rect.height, '#5CB838');
     }
 }
 

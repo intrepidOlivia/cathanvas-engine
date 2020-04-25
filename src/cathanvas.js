@@ -29,6 +29,18 @@ class Cathanvas {
         this.context.fillStyle = style || '#FFFFFF';
         this.context.fillRect(coords[0], coords[1], 1, 1);
     }
+    
+    /**
+     * @param coords [x, y]
+     * @param text
+     * @param style
+     */
+    drawText(coords, text, options = {}) {
+        this.context.font = options.style || '1em rgba(0, 0, 0, 0.5) monospace';
+        this.context.textAlign = options.textAlign || 'center';
+        this.context.fillText(text, coords[0], coords[1]);
+    }
+
 
     /**
      * @param from [x, y]

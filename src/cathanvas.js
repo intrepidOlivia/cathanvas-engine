@@ -13,12 +13,18 @@ class Cathanvas {
         this.container.appendChild(this.canvas);
         this.anims = [];
         this.animating = false;
+        this.setBackground(options.color, options.bg);
         this.renderCanvas = this.renderCanvas.bind(this);
     }
 
     setBackground(color, img) {
-        this.bgColor = color;
-        this.bgImg = img;
+        if (color) {
+            this.bgColor = color;
+        }
+
+        if (img) {
+            this.bgImg = img;
+        }
     }
 
     /**
@@ -29,7 +35,7 @@ class Cathanvas {
         this.context.fillStyle = style || '#FFFFFF';
         this.context.fillRect(coords[0], coords[1], 1, 1);
     }
-    
+
     /**
      * @param coords [x, y]
      * @param text
@@ -55,7 +61,7 @@ class Cathanvas {
 
     /**
      *
-     * @param image
+     * @param {Image} image
      * @param coords [ x, y ]
      * @param options {Object} { dWidth, dHeight, sx, sy, sWidth, sHeight}
      */

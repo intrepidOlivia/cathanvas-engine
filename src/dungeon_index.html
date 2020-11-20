@@ -25,7 +25,13 @@
         [UP]: [2, 3],
     });
     sprite.position = [canvas.width / 2, canvas.height / 2];
-    const dungeon = new Dungeon();
+
+    const bg = new Image();
+    bg.src = 'test_bg.jpg';
+
+    const dungeon = new Dungeon('root', {
+        bg,
+    });
     dungeon.player.sprite = sprite;
     canvas.addRenderObject(sprite);
     canvas.startRendering();

@@ -25,7 +25,7 @@ class SetVisualizer extends Game {
     }
 
     drawNumberLine() {
-        this.cathanvas.drawLineFrom([0, cathanvas.height /2], [cathanvas.width, cathanvas.height / 2]);
+        this.cathanvas.drawLineFrom([0, cathanvas.height / 2], [cathanvas.width, cathanvas.height / 2]);
         this.drawTicks();
     }
 
@@ -51,7 +51,11 @@ class SetVisualizer extends Game {
             return true;
         }
         const timeDelta = Date.now() - this.time;
-        return timeDelta > (1 / this.FPS) * 1000;
+        if (timeDelta > (1 / this.FPS) * 1000) {
+            this.time = Date.now();
+            return true;
+        }
+        return false;
     }
 
     drawNextDot() {
@@ -71,17 +75,20 @@ class SetVisualizer extends Game {
                 this.cathanvas.drawDotOnCurve(this.applyOffset([fromX, 0]), this.applyOffset([toX, 0]), j, i % 2 !== 0);
                 this.pointCursor = getNextX(fromX * this.resolution, toX * this.resolution, j);
             }
-
         }
-        this.time = Date.now();
     }
 
     drawNextSemicircle() {
+        if (!this.withinRateLimit()) {
+            return;
+        }
+
         const i = this.circleCursor;
         if (i < this.set.length && this.set[i - 1] != null) {
             this.drawSemiCircle([this.set[i - 1], 0], [this.set[i], 0], i % 2 !== 0);
         }
         this.circleCursor += 1;
+        // this.time = Date.now();
     }
 
     animateSet() {
@@ -92,7 +99,7 @@ class SetVisualizer extends Game {
     }
 
     drawSemiCircle(pointA, pointB, ccw) {
-        this.cathanvas.drawCurve(this.applyOffset(pointA), this.applyOffset(pointB), ccw);
+        this.cathanvas.drawCurve(this.applyOffset(pointA), this.applyOffset(pointB), { ccw});
     }
 
     numberWithinRange(num) {
@@ -116,15 +123,42 @@ class SetVisualizer extends Game {
     }
 }
 
- /**
+/**
  *
  * @param {Number} from
  * @param {Number} to
  * @param {Number} current
  */
- function getNextX(from, to, current) {
+function getNextX(from, to, current) {
     if (to < from) {
         return current - 1;
     }
     return current + 1;
+}
+
+function generateRecaman(length) {
+    /** Recamán's sequence (or Recaman's sequence):
+     * a(0) = 0; for n > 0,
+     *
+     * a(n) = a(n-1) - n if nonnegative and not already in the sequence,
+     *
+     * otherwise a(n) = a(n-1) + n.
+     */
+
+    const setNums = new Set();
+    setNums.add(0);
+    const set = [0];
+
+    for (let i = 1; i < length; i++) {
+        const proposed = set[i - 1] - i;
+        if (proposed > 0 && !setNums.has(proposed)) {
+            set[i] = proposed;
+            setNums.add(proposed);
+        } else {
+            const alt = set[i-1] + i;
+            set[i] = alt;
+            setNums.add(alt);
+        }
+    }
+    return set;
 }

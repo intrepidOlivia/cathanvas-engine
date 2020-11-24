@@ -1,7 +1,7 @@
 class Game {
     constructor(cathanvas) {
-        this.canvas = cathanvas;
-        this.colliderTree = new Quadtree();
+        this.cathanvas = cathanvas;
+        // this.colliderTree = new Quadtree();
 
         this.gameObjects = [];
         this.physObjects = [];
@@ -25,9 +25,9 @@ class Game {
 
     createObject = (newObj) => {
         this.gameObjects.push(newObj);
-        this.canvas.addRenderObject(newObj);
+        this.cathanvas.addRenderObject(newObj);
         this.addPhysicsObject(newObj);
-        this.canvas.addRenderObject(newObj);
+        this.cathanvas.addRenderObject(newObj);
     };
 
     startGame = () => {
@@ -37,12 +37,12 @@ class Game {
         }
 
         this.startPhysics();
-        canvas.startRendering();
+        this.cathanvas.startRendering();
     };
 
     endGame = () => {
         window.alert("Game Over!");
-        canvas.stopRendering();
+        this.cathanvas.stopRendering();
         this.stopPhysics();
     };
 

@@ -36,6 +36,38 @@ class Cathanvas {
         this.context.fillRect(coords[0], coords[1], 1, 1);
     }
 
+    getCurveData(from, to) {
+        const curve = {
+            totalX: to[0] - from[0],
+            totalY: to[1] - from[1],
+            centerPoint: [((to[0] - from[0]) / 2) + from[0], ((to[1] - from[1]) / 2) + from[1]],
+        };
+        curve.radius = (Math.sqrt((curve.totalX * curve.totalX) + (curve.totalY * curve.totalY))) / 2;
+        return curve;
+    }
+
+    drawCurve(from, to, ccw) {
+        // Draw dots from a coord to another coord following an angle
+        const curve = this.getCurveData(from, to);
+        // Default angle to 360
+        for (let i = 0; i < Math.abs(curve.totalX); i++) {
+            const nextX = curve.totalX > 0 ? from[0] + i : from[0] - i;
+            const ccwMod = ccw ? 1 : -1;
+            const nextY = ccwMod * Math.sqrt((curve.radius * curve.radius) - ((nextX - curve.centerPoint[0]) * (nextX - curve.centerPoint[0]))) + curve.centerPoint[1];
+            // this.drawLineFrom(curve.centerPoint, [nextX, nextY]);
+            this.drawDot([nextX, nextY]);
+        }
+    }
+
+    drawDotOnCurve(from, to, x, ccw) {
+        const curve = this.getCurveData(from, to);
+        const ccwMod = ccw ? 1 : -1;
+        const y = ccwMod * Math.sqrt((curve.radius * curve.radius) - ((x - curve.centerPoint[0]) * (x - curve.centerPoint[0]))) + curve.centerPoint[1];
+
+        this.drawDot([x, y]);
+        // this.drawLineFrom(curve.centerPoint, [x,y]);
+    }
+
     /**
      * @param coords [x, y]
      * @param text
@@ -130,8 +162,10 @@ class Cathanvas {
     };
 
     renderBg() {
-        this.context.fillStyle = this.bgColor || '#99b7e8';
-        this.context.fillRect(0, 0, this.width, this.height);
+        if (this.bgColor) {
+            this.context.fillStyle = this.bgColor;
+            this.context.fillRect(0, 0, this.width, this.height);
+        }
 
         if (this.bgImg) {
             this.drawImage(this.bgImg, [0, 0])

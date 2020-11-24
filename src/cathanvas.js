@@ -47,25 +47,20 @@ class Cathanvas {
     }
 
     drawCurve(from, to, {ccw, stepSize = 1}) {
-        // Draw dots from a coord to another coord following an angle
         const curve = this.getCurveData(from, to);
-        // Default angle to 360
         for (let i = 0; i < Math.abs(curve.totalX); i += stepSize) {
             const nextX = curve.totalX > 0 ? from[0] + i : from[0] - i;
-            const ccwMod = ccw ? 1 : -1;
-            const nextY = ccwMod * Math.sqrt((curve.radius * curve.radius) - ((nextX - curve.centerPoint[0]) * (nextX - curve.centerPoint[0]))) + curve.centerPoint[1];
-            // this.drawLineFrom(curve.centerPoint, [nextX, nextY]);
-            this.drawDot([nextX, nextY]);
+            this.drawDotOnCurve(from, to, nextX, ccw, curve);
         }
     }
 
-    drawDotOnCurve(from, to, x, ccw) {
-        const curve = this.getCurveData(from, to);
+    drawDotOnCurve(from, to, x, ccw, curve) {
+        if (!curve) {
+            curve = this.getCurveData(from, to);
+        }
         const ccwMod = ccw ? 1 : -1;
         const y = ccwMod * Math.sqrt((curve.radius * curve.radius) - ((x - curve.centerPoint[0]) * (x - curve.centerPoint[0]))) + curve.centerPoint[1];
-
         this.drawDot([x, y]);
-        // this.drawLineFrom(curve.centerPoint, [x,y]);
     }
 
     /**

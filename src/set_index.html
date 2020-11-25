@@ -14,24 +14,22 @@
 </div>
 </body>
 <script>
-    const cathanvas = new Cathanvas('root', { width: 800, height: 600 });
+    const cathanvas = new Cathanvas('root', { width: window.innerWidth * 2, height: window.innerHeight * 2 });
     const img = new Image();
     img.src = 'eleanor_sprite.png';
 
     const bg = new Image();
     bg.src = 'test_bg.jpg';
 
-    const testSet = generateRecaman(100);
+    const testSet = generateRecaman(255);
 
     const visualizer = new SetVisualizer(cathanvas,
         testSet,
         {
-            resolution: 4,
+            resolution: 10,
             FPS: 12,
         });
-    // visualizer.drawNumberLine();
     cathanvas.addRenderObject(visualizer);
-    // visualizer.drawSet();
     visualizer.animateSet();
 </script>
 </html>

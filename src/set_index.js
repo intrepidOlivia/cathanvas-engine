@@ -16,6 +16,9 @@ class SetVisualizer extends Game {
         this.circleCursor = 1;
         this.pointCursor = 0;
         this.time = Date.now();
+        this.color = [255, 0, 0];
+        this.colorPhase = 0;
+        this.colorChangeRate = options.colorChangeRate || 10;
     }
 
     determineNumRange(options) {
@@ -80,30 +83,96 @@ class SetVisualizer extends Game {
 
     drawNextSemicircle() {
         if (!this.withinRateLimit()) {
-            return;
+            return true;
         }
 
         const i = this.circleCursor;
-        if (i < this.set.length && this.set[i - 1] != null) {
-            this.drawSemiCircle([this.set[i - 1], 0], [this.set[i], 0], i % 2 !== 0);
+        if (i >= this.set.length) {
+            return false;
+        }
+
+        const from = [this.set[i - 1], 0];
+        const to = [this.set[i], 0];
+        if (i < this.set.length && from[0] != null) {
+            if (this.withinRenderRange(from) || this.withinRenderRange(to)) {
+                this.drawSemiCircle(this.applyOffset(from), this.applyOffset(to), i % 2 !== 0);
+            }
         }
         this.circleCursor += 1;
-        // this.time = Date.now();
+        return true;
     }
 
     animateSet() {
         requestAnimationFrame(() => {
-            this.drawNextSemicircle();
-            requestAnimationFrame(() => this.animateSet());
+            if (this.drawNextSemicircle()) {
+                requestAnimationFrame(() => this.animateSet());
+            }
         });
     }
 
     drawSemiCircle(pointA, pointB, ccw) {
-        this.cathanvas.drawCurve(this.applyOffset(pointA), this.applyOffset(pointB), { ccw});
+        this.cathanvas.drawSemicircle(pointA, pointB, ccw, this.getColorString());
+        this.adjustColor();
+        // this.cathanvas.drawCurve(this.applyOffset(pointA), this.applyOffset(pointB), { ccw});
+    }
+
+    withinRenderRange([x, y]) {
+        return x > 0 && x <= this.range;
     }
 
     numberWithinRange(num) {
         return num >= 0 && num <= this.range;
+    }
+
+    getColorString() {
+        return `rgb(${this.color.join(',')})`;
+    }
+
+    adjustColor() {
+        let colorIndex, modifier;
+
+        switch (this.colorPhase) {
+            case 0:
+                colorIndex = 1;
+                modifier = 1;
+                break;
+            case 1:
+                colorIndex = 0;
+                modifier = -1;
+                break;
+            case 2:
+                colorIndex = 2;
+                modifier = 1;
+                break;
+            case 3:
+                colorIndex = 1;
+                modifier = -1;
+                break;
+            case 4:
+                colorIndex = 0;
+                modifier = 1;
+                break;
+            case 5:
+                colorIndex = 2;
+                modifier = -1;
+                break;
+            default:
+                break;
+        }
+
+        this.color[colorIndex] += modifier * this.colorChangeRate;
+        if (this.color[colorIndex] >= 255 || this.color[colorIndex] <= 0) {
+            this.colorPhase += 1;
+            if (this.colorPhase > 5) {
+                this.colorPhase = 0;
+            }
+        }
+        if (this.color[colorIndex] > 255) {
+            this.color[colorIndex] = 255;
+        }
+        if (this.color[colorIndex] < 0) {
+            this.color[colorIndex] = 0;
+        }
     }
 
     applyOffset(coords) {

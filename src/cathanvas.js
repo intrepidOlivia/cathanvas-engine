@@ -46,21 +46,12 @@ class Cathanvas {
         return curve;
     }
 
-    drawCurve(from, to, {ccw, stepSize = 1}) {
+    drawSemicircle(from, to, ccw, style) {
         const curve = this.getCurveData(from, to);
-        for (let i = 0; i < Math.abs(curve.totalX); i += stepSize) {
-            const nextX = curve.totalX > 0 ? from[0] + i : from[0] - i;
-            this.drawDotOnCurve(from, to, nextX, ccw, curve);
-        }
-    }
-
-    drawDotOnCurve(from, to, x, ccw, curve) {
-        if (!curve) {
-            curve = this.getCurveData(from, to);
-        }
-        const ccwMod = ccw ? 1 : -1;
-        const y = ccwMod * Math.sqrt((curve.radius * curve.radius) - ((x - curve.centerPoint[0]) * (x - curve.centerPoint[0]))) + curve.centerPoint[1];
-        this.drawDot([x, y]);
+        this.context.strokeStyle = style || "#FFF";
+        this.context.beginPath();
+        this.context.arc(curve.centerPoint[0], curve.centerPoint[1], curve.radius, 0, Math.PI, ccw);
+        this.context.stroke();
     }
 
     /**

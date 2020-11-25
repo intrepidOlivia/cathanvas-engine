@@ -43,7 +43,7 @@ class SetVisualizer extends Game {
         let prev = null;
         for (let i = 0; i < this.set.length; i++) {
             if (prev) {
-                this.drawSemiCircle([prev, 0], [this.set[i], 0], i % 2 !== 0);
+                this.drawSemiCircle(this.applyOffset([prev, 0]), this.applyOffset([this.set[i], 0]), i % 2 !== 0);
             }
             prev = this.set[i];
         }
@@ -108,6 +108,15 @@ class SetVisualizer extends Game {
                 requestAnimationFrame(() => this.animateSet());
             }
         });
+    }
+
+    startAnimating() {
+        this.circleCursor = 1;
+        this.animateSet();
+    }
+
+    stopAnimating() {
+        this.circleCursor = this.set.length + 1;
     }
 
     drawSemiCircle(pointA, pointB, ccw) {
@@ -190,6 +199,12 @@ class SetVisualizer extends Game {
         }
         return mappedCoords;
     }
+
+    saveImage() {
+        const data = this.cathanvas.canvas.toDataURL("application/octet-stream");
+        const saveLink = document.getElementById("saveLink");
+        saveLink.href = data;
+    }
 }
 
 /**
@@ -231,3 +246,5 @@ function generateRecaman(length) {
     }
     return set;
 }
+
+

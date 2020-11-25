@@ -9,27 +9,76 @@
     <link href="index.css" rel="stylesheet"/>
 </head>
 <body>
-<div id="root">
+<div class="set_visualizer_wrapper">
+    <div class="user_panel">
+        <div>
+            <input id="animateRender" type="checkbox" checked="true" /><label for="animateRender">Animate</label>
+        </div>
+        <div>
+            <label>Animation Speed: <input id="fpsInput" type="number" value="12" onchange="changeFPS()"/> fps</label>
+        </div>
+        <div>
+            <button onclick="stopAnimation()">Stop</button>
+            <button onclick="clearCanvas()">Clear Canvas</button>
+            <button onclick="redrawCanvas()">Draw Set</button>
+        </div>
+        <a id="saveLink" href="#" download="set_visual.png" onclick="saveImage()"><button>Save Image</button></a>
+    </div>
 
+    <div id="set_canvas">
+
+    </div>
 </div>
 </body>
 <script>
-    const cathanvas = new Cathanvas('root', { width: window.innerWidth * 2, height: window.innerHeight * 2 });
-    const img = new Image();
-    img.src = 'eleanor_sprite.png';
-
-    const bg = new Image();
-    bg.src = 'test_bg.jpg';
-
-    const testSet = generateRecaman(255);
-
+    const cathanvas = new Cathanvas('set_canvas', { width: window.innerWidth * 2, height: window.innerHeight * 2 });
+    const defaultSet = generateRecaman(255);
     const visualizer = new SetVisualizer(cathanvas,
-        testSet,
+        defaultSet,
         {
             resolution: 10,
-            FPS: 12,
+            FPS: document.getElementById("fpsInput").value,
         });
+    setUpListeners();
+
     cathanvas.addRenderObject(visualizer);
-    visualizer.animateSet();
+    visualizer.startAnimating();
+
+    function setUpListeners() {
+        const fpsInput = document.getElementById("fpsInput");
+        fpsInput.addEventListener("keyup", (e) => {
+            if (e.code === "Enter") {
+                changeFPS();
+                fpsInput.blur();
+            }
+        });
+    }
+
+    function saveImage() {
+        return visualizer.saveImage();
+    }
+
+    function stopAnimation() {
+        visualizer.stopAnimating();
+    }
+
+    function clearCanvas() {
+        visualizer.stopAnimating();
+        cathanvas.context.clearRect(0, 0, cathanvas.width, cathanvas.height);
+    }
+
+    function redrawCanvas() {
+        const animateBox = document.getElementById("animateRender");
+        if (animateBox.checked) {
+            visualizer.startAnimating();
+        } else {
+            visualizer.drawSet();
+        }
+    }
+
+    function changeFPS() {
+        const input = document.getElementById("fpsInput");
+        visualizer.FPS = input.value;
+    }
 </script>
 </html>

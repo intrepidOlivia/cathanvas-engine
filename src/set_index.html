@@ -12,10 +12,22 @@
 <div class="set_visualizer_wrapper">
     <div class="user_panel">
         <div>
+            <label>Set: <select id="set_selector" onchange="selectSet()">
+                <option value="recaman">Recaman</option>
+                <option value="fibonacci">Fibonacci</option>
+            </select> </label>
+        </div>
+        <div>
+            <label>Set Length: <input id="set_length" type="number" value="255" /></label>
+        </div>
+        <div>
             <input id="animateRender" type="checkbox" checked="true" /><label for="animateRender">Animate</label>
         </div>
         <div>
             <label>Animation Speed: <input id="fpsInput" type="number" value="12" onchange="changeFPS()"/> fps</label>
+        </div>
+        <div>
+            <label>Resolution (magnification): <input id="set_resolution" type="number" value="10" /></label>
         </div>
         <div>
             <button onclick="stopAnimation()">Stop</button>
@@ -32,17 +44,19 @@
 </body>
 <script>
     const cathanvas = new Cathanvas('set_canvas', { width: window.innerWidth * 2, height: window.innerHeight * 2 });
-    const defaultSet = generateRecaman(255);
-    const visualizer = new SetVisualizer(cathanvas,
-        defaultSet,
-        {
-            resolution: 10,
-            FPS: document.getElementById("fpsInput").value,
-        });
+    let visualizer = createVisualizer(generateRecaman);
     setUpListeners();
-
     cathanvas.addRenderObject(visualizer);
     visualizer.startAnimating();
+
+    function createVisualizer(setFunc) {
+        const setLength = document.getElementById("set_length").value;
+        const setNums = setFunc(setLength);
+        return new SetVisualizer(cathanvas, setNums, {
+            resolution: document.getElementById("set_resolution").value,
+            FPS: document.getElementById("fpsInput").value,
+        });
+    }
 
     function setUpListeners() {
         const fpsInput = document.getElementById("fpsInput");
@@ -79,6 +93,19 @@
     function changeFPS() {
         const input = document.getElementById("fpsInput");
         visualizer.FPS = input.value;
+    }
+
+    const sets = {
+        recaman: generateRecaman,
+        fibonacci: generateFibonacci,
+    }
+
+    function selectSet() {
+        const selector = document.getElementById("set_selector");
+        if (sets[selector.value]) {
+            stopAnimation();
+            visualizer = createVisualizer(sets[selector.value]);
+        }
     }
 </script>
 </html>

@@ -247,4 +247,14 @@ function generateRecaman(length) {
     return set;
 }
 
+function generateFibonacci(length) {
+    /**
+     * 	Fibonacci numbers: F(n) = F(n-1) + F(n-2) with F(0) = 0 and F(1) = 1.
+     */
+    const set = [0, 1];
+    for (let i = 2; i < length; i++) {
+        set.push(set[i-1] + set[i-2]);
+    }
+    return set;
+}
 

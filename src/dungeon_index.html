@@ -15,7 +15,9 @@
 </div>
 </body>
 <script>
-    const canvas = new Cathanvas('root', {width: window.innerWidth, height: window.innerHeight});
+    const bg = new Image();
+    bg.src = 'test_bg.jpg';
+    const cathanvas = new Cathanvas('root', {width: window.innerWidth, height: window.innerHeight, bg,});
     const img = new Image();
     img.src = 'eleanor_sprite.png';
     const sprite = new Sprite(img, [25, 50], {
@@ -24,17 +26,14 @@
         [DOWN]: [0, 1],
         [UP]: [2, 3],
     });
-    sprite.position = [canvas.width / 2, canvas.height / 2];
+    sprite.position = [cathanvas.width / 2, cathanvas.height / 2];
 
-    const bg = new Image();
-    bg.src = 'test_bg.jpg';
+    
 
-    const dungeon = new Dungeon('root', {
-        bg,
-    });
+    const dungeon = new Dungeon(cathanvas);
     dungeon.player.sprite = sprite;
-    canvas.addRenderObject(sprite);
-    canvas.startRendering();
+    cathanvas.addRenderObject(sprite);
+    cathanvas.startRendering();
     dungeon.addPhysicsObject(dungeon);
     dungeon.startGame();
 </script>

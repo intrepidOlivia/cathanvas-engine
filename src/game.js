@@ -1,7 +1,7 @@
 class Game {
     constructor(cathanvas) {
         this.cathanvas = cathanvas;
-        // this.colliderTree = new Quadtree();
+        this.colliderTree = new Quadtree();
 
         this.gameObjects = [];
         this.physObjects = [];

@@ -13,9 +13,10 @@ const DIRECTIONS = {
 const SPEED = 10;
 
 class Dungeon extends Game {
-    constructor(containerID, options = {}) {
-        super(containerID, options);
+    constructor(cathanvas, options = {}) {
+        super(cathanvas);
         this.addListeners();
+        this.options = options;
         this.player = {};
         this.movement = {
             [RIGHT]: this.moveRight,

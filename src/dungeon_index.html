@@ -34,6 +34,7 @@
     dungeon.player.sprite = sprite;
     cathanvas.addRenderObject(sprite);
     cathanvas.startRendering();
+    dungeon.initializeCollision(new Quadtree());
     dungeon.addPhysicsObject(dungeon);
     dungeon.startGame();
 </script>

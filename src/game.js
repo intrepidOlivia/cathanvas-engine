@@ -1,14 +1,16 @@
 class Game {
     constructor(cathanvas) {
         this.cathanvas = cathanvas;
-        this.colliderTree = new Quadtree();
-
         this.gameObjects = [];
         this.physObjects = [];
         this.scenes = [];
         this.scene = null;
         this.TICK = 50;
         this.physicsLoop = null;
+    }
+
+    initializeCollision(quadtree) {
+        this.colliderTree = quadtree;
     }
 
     onClick = (e) => {

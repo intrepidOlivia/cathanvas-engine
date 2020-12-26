@@ -58,3 +58,45 @@ body {
 .settings > div {
     margin: 5% auto;
 }
+
+.set_subsection {
+    background-color: #999999;
+    border: 1px solid black;
+    padding: 5%;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.set_subsection > div {
+    flex: 1 1 0;
+    margin: 10px 0;
+}
+
+.set_subsection input {
+    width: 15%;
+}
+
+.subsection_header {
+    background-color: #b5b5b5;
+    font-size: 16px;
+    text-align: center;
+    padding: 1vh 0;
+    margin-bottom: 0.5vh;
+}
+
+#saveLink > button {
+    height: 6vh;
+    width: 8vw;
+}
+
+.footnote {
+    font-size: 10px;
+    text-align: end;
+    color: #000;
+    background-color: #999999;
+    width: 100%;
+    padding: 1%;
+    box-sizing: border-box;
+}

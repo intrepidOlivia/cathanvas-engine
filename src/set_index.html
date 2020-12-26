@@ -11,30 +11,43 @@
 <body>
 <div class="set_visualizer_wrapper">
     <div class="user_panel">
-        <div>
-            <label>Set: <select id="set_selector" onchange="selectSet()">
-                <option value="recaman">Recaman</option>
-                <option value="fibonacci">Fibonacci</option>
-            </select> </label>
+        <div class="set_subsection">
+            <div class="subsection_header">
+                Configuration
+            </div>
+            <div>
+                <label>Set: <select id="set_selector" onchange="selectSet()">
+                    <option value="recaman">Recaman</option>
+                    <option value="fibonacci">Fibonacci</option>
+                </select> </label>
+            </div>
+            <div>
+                <label>Set Length: <input id="set_length" type="number" value="255" /></label>
+            </div>
         </div>
-        <div>
-            <label>Set Length: <input id="set_length" type="number" value="255" /></label>
+        <div class="set_subsection">
+            <div class="subsection_header">
+                Animation
+            </div>
+            <div>
+                <input id="animateRender" type="checkbox" checked="true" /><label for="animateRender">Animate</label>
+            </div>
+            <div>
+                <label>Animation Speed: <input id="fpsInput" type="number" value="12" onchange="changeFPS()"/> fps</label>
+            </div>
+            <div>
+                <label>Resolution (magnification): <input id="set_resolution" type="number" value="10" /></label>
+            </div>
+            <div>
+                <button onclick="stopAnimation()">Stop</button>
+                <button onclick="clearCanvas()">Clear Canvas</button>
+                <button onclick="redrawCanvas()">Draw Set</button>
+            </div>
         </div>
-        <div>
-            <input id="animateRender" type="checkbox" checked="true" /><label for="animateRender">Animate</label>
+        <a id="saveLink" href="#" download="set_visual.png" onclick="saveImage()"><button>Save Image (png)</button></a>
+        <div class="footnote">
+            Note: This canvas is configured to render more elegantly on a Retina display.
         </div>
-        <div>
-            <label>Animation Speed: <input id="fpsInput" type="number" value="12" onchange="changeFPS()"/> fps</label>
-        </div>
-        <div>
-            <label>Resolution (magnification): <input id="set_resolution" type="number" value="10" /></label>
-        </div>
-        <div>
-            <button onclick="stopAnimation()">Stop</button>
-            <button onclick="clearCanvas()">Clear Canvas</button>
-            <button onclick="redrawCanvas()">Draw Set</button>
-        </div>
-        <a id="saveLink" href="#" download="set_visual.png" onclick="saveImage()"><button>Save Image</button></a>
     </div>
 
     <div id="set_canvas">

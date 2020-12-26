@@ -11,3 +11,5 @@ This game engine is created using Javascript, the [Canvas API](https://developer
 [Dungeon](https://intrepidolivia.github.io/cathanvas-engine/src/dungeon_index.html)
 
 ## Demos (Complete):
+
+[Set Visualizer](https://intrepidolivia.github.io/cathanvas-engine/src/set_index.html)

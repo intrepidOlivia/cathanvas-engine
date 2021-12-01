@@ -3,13 +3,13 @@ Project for experimenting with game engine prototypes. Initially written for the
 
 This game engine is created using Javascript, the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API), and no external libraries.
 
+## Demos (Complete):
+
+[Set Visualizer](https://intrepidolivia.github.io/cathanvas-engine/src/set_index.html)
+
 ## Demos (Incomplete):
 [Snake](https://intrepidolivia.github.io/cathanvas-engine/src/snake_index.html)
 
 [Tetris](https://intrepidolivia.github.io/cathanvas-engine/src/tetris_index.html)
 
 [Dungeon](https://intrepidolivia.github.io/cathanvas-engine/src/dungeon_index.html)
-
-## Demos (Complete):
-
-[Set Visualizer](https://intrepidolivia.github.io/cathanvas-engine/src/set_index.html)
